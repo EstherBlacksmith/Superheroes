@@ -17,11 +17,13 @@ class PowerController extends Controller
     	$validated = $request->validate([
         	'name' => 'required|max:255',
         	'description' => 'required|max:255',
+            'damage_points' => 'integer|max:20'
     	]);
 
         $power = new Power();
         $power->name = $request->name;
         $power->description = $request->description;
+        $power->damage_points = $request->damage_points;
         $power->save();
 
     }
@@ -60,6 +62,7 @@ class PowerController extends Controller
 		$validated = $request->validate([
         	'name' => 'required|max:255',
         	'description' => 'required|max:255',
+            'damage_points' => 'integer|max:20'
     	]);
 
     	$power =Power::find($request->id);
@@ -67,6 +70,7 @@ class PowerController extends Controller
     	if($power->id <> 0) {
         	$power->name = $request->name;
         	$power->description = $request->description;
+            $power->damage_points = $request->damage_points;
             $power->heroes()->sync($request['heroes']);
         	$power->save();
         }

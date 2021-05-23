@@ -11,11 +11,11 @@
 </head>
 <body>
 
-    <h1>This is example Bootstrap page</h1>
-    <table>
+    <h1>Organizaciones</h1>
+    <table id="superTable">
 <tr>
-	<th>Nombre</th>
-	<th>Descripción</th>
+	<th onclick="sortTable(0)">Nombre</th>
+	<th onclick="sortTable(1)">Descripción</th>
 
 	<th>Editar</th>
 	<th>Eliminar</th>
@@ -34,3 +34,4 @@
 
 </table>
 </body>
+@include('scripts.superTableScript')

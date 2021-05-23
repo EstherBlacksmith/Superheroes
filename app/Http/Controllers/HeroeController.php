@@ -31,33 +31,8 @@ class HeroeController extends Controller{
     }
 
 
-    /*public function busqueda(Request $request){
-        
-
-        if($request->has('palabra_clave')){
-            $heroe->where('nombre', 'like', $request->palabra_clave);
-        }
-
-        if($request->has('sector')){
-            $noticia->whereHas('sector', function ($query) {
-                $query->where('nombre', 'like', $request->sector);
-            });
-        }
-
-        if($request->has('fuente')){
-            $noticia->whereHas('fuente', function ($query) {
-                $query->where('nombre', 'like', $request->fuente);
-            });
-        }
-
-        $noticias = $noticias->get();
-        return view('tuvista', compact('noticias'));
-    }*/
-
-
-
-
 	public function IndexView(Request $request){
+        $regPaginas = 4;
         
         $powersbyHeroe = array();
         $organizationsbyHeroe =array();        
@@ -65,32 +40,30 @@ class HeroeController extends Controller{
 
         $compact  = ['organizations','alignments','powers','heroes'];
 
-        //Inicializamos la variable con todos los heroes 
-        $heroes = Heroe::all()->toArray();
-
+        $heroes;
 
         if($request->has('heroe_name')){           
-            $heroes = Heroe::where('heroe_name','like','%'.$request->heroe_name. '%')->get()->toArray(); 
+            $heroes = Heroe::where('heroe_name','like','%'.$request->heroe_name. '%'); 
         }
 
         if($request->has('real_name')){           
-            $heroes = Heroe::where('real_name','like','%'.$request->real_name. '%')->get()->toArray(); 
+            $heroes = Heroe::where('real_name','like','%'.$request->real_name. '%'); 
         }
 
         if($request->has('organization')){
 
            if($request->organization != 'Todas'){        
                 // Devuelve todos los heroes qur tienen al menos una organization
-                $heroes = Heroe::has('organizations')->get()->toArray();                
+                $heroes = Heroe::has('organizations');                
             }
-        }
+        }       
         
-
+  
         if($request->has('powers')){
 
            if($request->powers != 'Todos'){           
                 // Devuelve todos los heroes que tienen al menos un poder
-                $heroes = Heroe::has('powers')->get()->toArray();                
+                $heroes = Heroe::has('powers');                
             }
         }
 
@@ -98,11 +71,18 @@ class HeroeController extends Controller{
 
             if($request->alignment != 'Todos'){
                 echo($request->alignment);
-                $heroes = Heroe::where('alignment_id',$request->alignment)->get()->toArray();                
+                $heroes = Heroe::where('alignment_id',$request->alignment);                
             }
 
+        }	
+
+         if (empty($heroes)){
+            //Inicializamos la variable con todos los heroes 
+            $heroes = Heroe::where('id','<>',0);
         }
-	
+
+        
+        $heroes = $heroes->paginate($regPaginas);
 
     	$powers = Power::all()->toArray();
     	$organizations = Organization::all()->toArray();
@@ -112,7 +92,7 @@ class HeroeController extends Controller{
     		$powersbyHeroe[$heroe['id']] = Heroe::find($heroe['id'])->powers->toArray();
     		$organizationsbyHeroe[$heroe['id']] = Heroe::find($heroe['id'])->organizations->toArray();
     	}
-   
+
         if ( isset($powersbyHeroe)){
             array_push($compact, 'powersbyHeroe');
         }
@@ -131,7 +111,8 @@ class HeroeController extends Controller{
         	'real_name' => 'required|max:255',
         	'heroe_name' => 'required|unique:heroes|max:255',
         	'alignment' => 'required|numeric',
-
+            'vital_points' => 'required|numeric|max:50',
+            'strength' => 'required|numeric|max:10',
     	]);
 
     	$heroe = heroe::where('heroe_name',$request->heroe_name)->first();
@@ -145,6 +126,8 @@ class HeroeController extends Controller{
         $heroe->real_name = $request->real_name;
         $heroe->heroe_name = $request->heroe_name;
         $heroe->alignment_id = $request->alignment;
+        $heroe->vital_points = $request->vital_points;
+        $heroe->strength = $request->strength;
 
         $heroe->save();
 
@@ -187,6 +170,8 @@ class HeroeController extends Controller{
         	'real_name' => 'required|max:255',
             'alignment' => 'required|numeric',
             'power'=> 'required',
+            'vital_points' => 'required|numeric|max:50',
+            'strength' => 'required|numeric|max:10',
     	]);
 
         $heroe =heroe::find($request->id);          
@@ -195,15 +180,33 @@ class HeroeController extends Controller{
     	if($heroe->id <> 0) {
         	$heroe->real_name = $request->real_name;
             $heroe->alignment_id =  $request->alignment;
-
             $heroe->organizations()->sync($request['organization']);
             $heroe->powers()->sync($request['power']);
+            $heroe->vital_points = $request->vital_points;
+            $heroe->strength = $request->strength;
         	$heroe->save();
         }
         return redirect()->back()->with('success', 'Super héroe actualizado correctamente');   
 
 
     }
+    
+    public function imageUploadPost(Request $request)    {
+        $request->validate([
+            'image' => 'requred|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+    
+        $imageName = time().'.'.$request->heroe_name.$request->image->extension();  
+     
+        $request->image->move(public_path('images'), $imageName);
+  
+        /* Store $imageName name in DATABASE from HERE */
+    
+        return back()
+            ->with('success','You have successfully upload image.')
+            ->with('image',$imageName); 
+    }
+    
 }
 
 

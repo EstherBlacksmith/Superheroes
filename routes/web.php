@@ -5,7 +5,8 @@ use App\Http\Controllers\PowerController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\AlignmentController;
 use App\Http\Controllers\HeroeController;
-
+use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\CombatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,3 +57,12 @@ Route::post('/heroe.create',[HeroeController::class,'create'])->name('createHero
 Route::get('/heroe.update/{id}',[HeroeController::class,'updateView'])->name('updateHeroe');
 Route::post('/heroe.update',[HeroeController::class,'update'])->name('updateHeroeStore');
 Route::get('/heroe.delete/{id}',[HeroeController::class,'delete'])->name('deleteHeroe');
+
+//imagenes 
+Route::get('/heroe.image-upload/{id}', [ImageUploadController::class, 'imageUpload' ])->name('imageUpload');
+Route::post('/heroe.image-upload', [ImageUploadController::class, 'imageUploadPost' ])->name('imageUploadStore');
+
+//Combates
+Route::get('/combat', [CombatController::class, 'combatView' ])->name('combat');
+
+Route::get('/combatCard', [CombatController::class, 'combatCard' ])->name('combatCard');

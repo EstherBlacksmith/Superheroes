@@ -149,6 +149,9 @@ return [
     'attributes' => [
         'real_name' => 'nombre real',
         'heroe_name' => 'apodo',
-        'alignment' => 'alineamiento'],
+        'alignment' => 'alineamiento',
+        'damage_points' => 'puntos de daño',
+        'strength' => 'fuerza',
+        'vital_points' => 'puntos de vida'],
 
 ];

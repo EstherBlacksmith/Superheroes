@@ -16,7 +16,8 @@ class Power extends Model
      */
     protected $fillable = [
         'name',
-        'description'
+        'description',
+        'damage_points',
     ];
 
 

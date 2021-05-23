@@ -18,6 +18,10 @@ class Heroe extends Model
         'real_name',
         'heroe_name',
         'alignment_id',
+        'image_name',
+        'vital_points',
+        'combat_vital_points',
+        'strength',
     ];
 
 	// un heroe tiene muchos poderes
@@ -34,7 +38,5 @@ class Heroe extends Model
 	public function alignments() {
 		return $this->belongsTo(Alignment::class);
 	}
-
-
     
 }

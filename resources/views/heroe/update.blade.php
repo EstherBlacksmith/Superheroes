@@ -69,6 +69,17 @@
     </select>
   </div>
 
+  <div class="form-group">
+    <label for="vital_points">Puntos de vida</label>
+    <input type="text" class="form-control" name="vital_points" placeholder="Puntos de vida" id="vital_points">
+  </div>
+
+  <div class="form-group">
+    <label for="strength">Fuerza</label>
+    <input type="text" class="form-control" name="strength" placeholder="Fuerza" id="strength">
+  </div>
+
+
   <button type="submit" class="btn btn-primary">Submit</button>
   
 </form>
