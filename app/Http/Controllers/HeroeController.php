@@ -8,22 +8,22 @@ use App\Models\Organization;
 use App\Models\Alignment;
 use App\Models\Power;
 use Illuminate\Support\Facades\DB;
-
+use App\Http\Controllers\ImageUploadController;
 
 class HeroeController extends Controller{
 
     public function createView(){
 
-    	$powers = Power::all()->toArray();
-    	$organizations = Organization::all()->toArray();
-    	$alignments = Alignment::all()->toArray();
+    	$powers = Power::all();
+    	$organizations = Organization::all();
+    	$alignments = Alignment::all();
 
 		return view('heroe.create',compact('organizations','alignments','powers'));
 
 	}
 
 	public function getHeroeByName($name) {
-		$heroes = Heroe::where('real_name', $name)->orWhere('heroe_name', $name)->get()->toArray();
+		$heroes = Heroe::where('real_name', $name)->orWhere('heroe_name', $name)->get();
 	}
 
 	public function getHeroesByAlignment($id) {
@@ -32,7 +32,7 @@ class HeroeController extends Controller{
 
 
 	public function IndexView(Request $request){
-        $regPaginas = 4;
+        $regPaginas = 5;
         
         $powersbyHeroe = array();
         $organizationsbyHeroe =array();        
@@ -89,8 +89,8 @@ class HeroeController extends Controller{
     	$alignments = Alignment::all()->toArray();
 
     	foreach ($heroes as $heroe ) {
-    		$powersbyHeroe[$heroe['id']] = Heroe::find($heroe['id'])->powers->toArray();
-    		$organizationsbyHeroe[$heroe['id']] = Heroe::find($heroe['id'])->organizations->toArray();
+    		$powersbyHeroe[$heroe['id']] = Heroe::find($heroe['id'])->powers;
+    		$organizationsbyHeroe[$heroe['id']] = Heroe::find($heroe['id'])->organizations;
     	}
 
         if ( isset($powersbyHeroe)){
@@ -108,18 +108,19 @@ class HeroeController extends Controller{
     public function create(Request $request){
 
     	$validated = $request->validate([
+            'heroe_name' => 'unique:heroes,heroe_name|required|unique:heroes|max:255',
         	'real_name' => 'required|max:255',
-        	'heroe_name' => 'required|unique:heroes|max:255',
         	'alignment' => 'required|numeric',
-            'vital_points' => 'required|numeric|max:50',
+            'vital_points' => 'required|numeric|max:100',
             'strength' => 'required|numeric|max:10',
     	]);
 
     	$heroe = heroe::where('heroe_name',$request->heroe_name)->first();
 
     	//comprobamos que o exista ya uno con ese nombre
-    	if($heroe){
-    		return back()->withErrors(['Este super héroe ya existe']);
+    	if(!empty($heroe)){
+            //este mensage no es necesario, ya que con el unque mos lo está controlando
+    		return redirect()->back()->with('message', 'Este super héroe ya existe');
 		}
 
         $heroe = new heroe();
@@ -142,23 +143,30 @@ class HeroeController extends Controller{
     	$heroe = heroe::find($id);
 
     	if($heroe->id <> 0) {
+            //eliminamos la imagen de la carpeta
+             app('App\Http\Controllers\ImageUploadController')->deleteImageNoRequest($heroe,$heroe->image_name);
+
     		//eliminamos los registros relacionados    
             $heroe->organizations()->detach();
             $heroe->powers()->detach();
+
             //Eliminamos el héroe
     		$heroe->delete();
     	}
+
+
+
         return redirect()->back()->with('success', 'Super héroe eliminado');   
     }
 
     public function updateView($id){
 
-    	$heroe = Heroe::with('powers')->with('organizations')->find($id)->toArray();
+    	$heroe = Heroe::with('powers')->with('organizations')->find($id);
 
 
     	$powersAll = Power::all()->toArray();
-    	$organizationsAll = Organization::all()->toArray();
-    	$alignments = Alignment::all()->toArray();
+    	$organizationsAll = Organization::all();
+    	$alignments = Alignment::all();
 
 		return view('heroe.update',compact('organizationsAll','alignments','powersAll','heroe'));
 
@@ -170,7 +178,7 @@ class HeroeController extends Controller{
         	'real_name' => 'required|max:255',
             'alignment' => 'required|numeric',
             'power'=> 'required',
-            'vital_points' => 'required|numeric|max:50',
+            'vital_points' => 'required|numeric|max:100',
             'strength' => 'required|numeric|max:10',
     	]);
 
@@ -185,6 +193,8 @@ class HeroeController extends Controller{
             $heroe->vital_points = $request->vital_points;
             $heroe->strength = $request->strength;
         	$heroe->save();
+        }else{
+            return redirect()->back()->with('error', 'Super héroe no encontrado');   
         }
         return redirect()->back()->with('success', 'Super héroe actualizado correctamente');   
 

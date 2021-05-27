@@ -15,7 +15,7 @@ class OrganizationController extends Controller
     
     public function create(Request $request){
     	$validated = $request->validate([
-        	'name' => 'required|max:255',
+            'name' => 'unique:organizations,name|required|max:255',
         	'description' => 'required|max:255',
     	]);
 
@@ -23,12 +23,14 @@ class OrganizationController extends Controller
         $organization->name = $request->name;
         $organization->description = $request->description;
         $organization->save();
+        return redirect()->back()->with('success', 'Organización creada');  
 
     }
 
     public function organizationView(){
-        $organizations = Organization::all()->toArray();
-
+        $heroes = Heroe::orderBy('id');
+        $organizations = Organization::orderBy('name');
+        $organizations = $organizations->paginate(5);
         return view('organization.index',compact('organizations'));
 
     }
@@ -50,7 +52,7 @@ class OrganizationController extends Controller
 
     public function updateView($id){
 
-        $organization = organization::find($id)->toArray(); 
+        $organization = organization::find($id); 
 
         return view('organization.update',compact('organization'));
 
@@ -61,7 +63,7 @@ class OrganizationController extends Controller
     public function update(Request $request){
         
 		$validated = $request->validate([
-        	'name' => 'required|max:255',
+            'name' => 'required|max:255',
         	'description' => 'required|max:255',
     	]);
 

@@ -15,10 +15,11 @@ class PowerController extends Controller
     
     public function create(Request $request){
     	$validated = $request->validate([
-        	'name' => 'required|max:255',
+        	'name' => 'unique:Powers,name|required|max:255',
         	'description' => 'required|max:255',
             'damage_points' => 'integer|max:20'
     	]);
+
 
         $power = new Power();
         $power->name = $request->name;
@@ -26,10 +27,14 @@ class PowerController extends Controller
         $power->damage_points = $request->damage_points;
         $power->save();
 
+        return redirect()->back()->with('success', 'Poder creado'); 
+
+
     }
 
      public function powerView(){
-        $powers = Power::all()->toArray();
+        $powers = Power::orderBy('name');
+        $powers = $powers->paginate(5);
 
         return view('power.index',compact('powers'));
 
@@ -51,7 +56,7 @@ class PowerController extends Controller
 
     public function updateView($id){
 
-        $power = Power::find($id)->toArray(); 
+        $power = Power::find($id); 
 
         return view('power.update',compact('power'));
 
@@ -60,7 +65,7 @@ class PowerController extends Controller
     public function update(Request $request){
 
 		$validated = $request->validate([
-        	'name' => 'required|max:255',
+            'name' => 'required|max:255',
         	'description' => 'required|max:255',
             'damage_points' => 'integer|max:20'
     	]);

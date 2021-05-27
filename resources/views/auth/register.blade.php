@@ -1,37 +1,40 @@
-<x-guest-layout>
-    <x-jet-authentication-card>
-        <x-slot name="logo">
-            <x-jet-authentication-card-logo />
-        </x-slot>
+@include('layouts.head')
 
-        <x-jet-validation-errors class="mb-4" />
+@include('layouts.navigation')
+<div class="container">
+  <div class="row">
+    <div class="col col-5">
 
         <form method="POST" action="{{ route('register') }}">
             @csrf
 
-            <div>
-                <x-jet-label for="name" value="{{ __('Name') }}" />
-                <x-jet-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
+            <div class="form-group text-white">
+
+                <label for="name" value="{{ __('Name') }}" >Nombre</label>
+                <input id="name" class="form-control" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
             </div>
 
-            <div class="mt-4">
-                <x-jet-label for="email" value="{{ __('Email') }}" />
-                <x-jet-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />
+                   <div class="form-group text-white">
+
+                <label for="email" value="{{ __('Email') }}" > Email</label>
+                <input id="email"  class="form-control" type="email" name="email" :value="old('email')" required />
+            </div>
+            <div class="form-group text-white">
+
+                <label for="password" value="{{ __('Password') }}"  > Contraseña</label>
+                <input id="password"  class="form-control" type="password" name="password" required autocomplete="new-password" />
             </div>
 
-            <div class="mt-4">
-                <x-jet-label for="password" value="{{ __('Password') }}" />
-                <x-jet-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            </div>
+                  <div class="form-group text-white">
 
-            <div class="mt-4">
-                <x-jet-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
-                <x-jet-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
+                <label for="password_confirmation" value="{{ __('Confirm Password') }}" > Confirmar contraseña</label>
+                <input id="password_confirmation"  class="form-control" type="password" name="password_confirmation" required autocomplete="new-password" />
             </div>
 
             @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
-                <div class="mt-4">
-                    <x-jet-label for="terms">
+                      <div class="form-group text-white">
+
+                    <label for="terms">
                         <div class="flex items-center">
                             <x-jet-checkbox name="terms" id="terms"/>
 
@@ -42,19 +45,32 @@
                                 ]) !!}
                             </div>
                         </div>
-                    </x-jet-label>
+                    </label>
                 </div>
             @endif
 
-            <div class="flex items-center justify-end mt-4">
-                <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('login') }}">
-                    {{ __('Already registered?') }}
+            <div class="flex items-center justify-end  ">
+                <a class="underline text-sm text-gray-600 hover:text-gray-900 text-white" href="{{ route('login') }}">
+                    {{ __('¿Ya tienes una cuenta?') }}
                 </a>
-
-                <x-jet-button class="ml-4">
-                    {{ __('Register') }}
-                </x-jet-button>
+            <button type="submit" class="btn btn-light">
+                    {{ __('Regístrate') }}
+                </button>
             </div>
         </form>
-    </x-jet-authentication-card>
-</x-guest-layout>
+
+
+    @if ($errors->any())
+    <div class="alert alert-danger">
+      <ul>
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+      </ul>
+    </div>
+    @endif
+
+ </div>
+</div>
+</div>
+</body>

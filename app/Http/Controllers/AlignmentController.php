@@ -5,9 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Alignment;
 use App\Models\Heroe;
-/*
-Route::get('/alignment.update/{id}',[AlignmentController::class,'updateView'])->name('updateAlignment');
-*/
+
+
 class AlignmentController extends Controller
 {
     public function createView(){
@@ -16,14 +15,15 @@ class AlignmentController extends Controller
 	}
 
     public function alignmentView(){
-        $alignments = Alignment::all()->toArray();
+        $alignments = Alignment::orderBy('name');
+        $alignments = $alignments->paginate(5);
 
         return view('alignment.index',compact('alignments'));
 
     }
     public function updateView($id){
 
-         $alignment = Alignment::find($id)->toArray(); 
+         $alignment = Alignment::find($id); 
 
         return view('alignment.update',compact('alignment'));
 
@@ -32,7 +32,7 @@ class AlignmentController extends Controller
 
     public function create(Request $request){
     	$validated = $request->validate([
-        	'name' => 'required|max:255',
+            'name' => 'unique:alignments,name|required|max:255',
         	'description' => 'required|max:255',
     	]);
 
@@ -41,15 +41,21 @@ class AlignmentController extends Controller
         $alignment->description = $request->description;
         $alignment->save();
 
+        return redirect()->back()->with('success', 'Alineamiento creado');   
+
+
     }
 
     public function delete($id){
     	$alignment = alignment::find($id);
-    	if($alignment->id <> 0) {
+    	
+        if($alignment->id <> 0) {
 
-    		//eliminamos los registros relacionados
-            if(Heroe::where('alignment_id',$alignment->id)->get()){
-                return redirect()->back()->withErrors('Este alineamiento no se puede eliminar porque hay héroes que lo tienen');   
+            $heroe =Heroe::where('alignment_id',$alignment->id)->get();
+
+    		//no podemos eliminar si hay registros relacionados
+            if(!$heroe->isEmpty() ){
+                return redirect()->back()->with('errors','Este alineamiento no se puede eliminar porque hay héroes que lo tienen');   
             }
 
     		$alignment->delete();
@@ -72,6 +78,9 @@ class AlignmentController extends Controller
         	$alignment->description = $request->description;
         	$alignment->save();
         }
+
+        return redirect()->back()->with('success', 'Alineamiento actualizado');   
+
 
     }
 }
